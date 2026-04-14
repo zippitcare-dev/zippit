@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0d0d14"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ZIPPit"/>
+<meta name="description" content="ZIPPit - Water Bottle Business Manager"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>ZIPPit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+:root{
+  --bg:#0d0d14;--surface:#16161f;--surface2:#1e1e2a;--surface3:#252533;
+  --border:#2a2a3a;--border2:#353548;
+  --text:#f0f0f8;--text2:#9090aa;--text3:#555568;
+  --accent:#ff3f6c;--accent2:#ff6b8a;--accent-dim:rgba(255,63,108,.15);
+  --green:#00d68f;--green-dim:rgba(0,214,143,.12);
+  --amber:#ffb340;--amber-dim:rgba(255,179,64,.12);
+  --blue:#4d9fff;--blue-dim:rgba(77,159,255,.12);
+  --red:#ff4d4d;--red-dim:rgba(255,77,77,.12);
+  --purple:#9b6dff;--purple-dim:rgba(155,109,255,.12);
+  --r4:4px;--r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;
+  --nav:60px;--top:56px;
+  --ff-head:'Syne',sans-serif;--ff-body:'DM Sans',sans-serif;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.light{
+  --bg:#f2f2f7;--surface:#ffffff;--surface2:#f8f8fc;--surface3:#efeff5;
+  --border:#e0e0ec;--border2:#d0d0e0;
+  --text:#0d0d20;--text2:#60607a;--text3:#a0a0b8;
+  --shadow:0 4px 20px rgba(0,0,0,.08);
+}
+body{font-family:var(--ff-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
+
+/* ── UTILS ── */
+.hide{display:none!important}
+.flex{display:flex}
+.col{flex-direction:column}
+.center{align-items:center;justify-content:center}
+.between{align-items:center;justify-content:space-between}
+.gap4{gap:4px}.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}
+.w100{width:100%}
+.bold{font-weight:600}
+.font-head{font-family:var(--ff-head)}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.splash-ring{width:120px;height:120px;border-radius:32px;background:linear-gradient(135deg,#ff3f6c,#ff6b8a);display:flex;align-items:center;justify-content:center;animation:splashBounce .7s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0}
+@keyframes splashBounce{0%{opacity:0;transform:scale(.4) rotate(-15deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.splash-z{font-family:var(--ff-head);font-size:56px;font-weight:800;color:#fff;line-height:1;user-select:none}
+.splash-brand{font-family:var(--ff-head);font-size:28px;font-weight:800;color:var(--text);margin-top:20px;opacity:0;animation:fadeUp .5s .6s forwards}
+.splash-sub{font-size:13px;color:var(--text2);margin-top:6px;opacity:0;animation:fadeUp .5s .75s forwards}
+.splash-loader{width:48px;height:3px;background:var(--border);border-radius:99px;margin-top:32px;overflow:hidden;opacity:0;animation:fadeUp .3s .9s forwards}
+.splash-loader-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;animation:loaderFill 1.6s 1s ease forwards}
+@keyframes loaderFill{to{width:100%}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LOGIN ── */
+#login{position:fixed;inset:0;background:var(--bg);z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .4s,transform .4s}
+#login.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.login-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#ff3f6c,#ff6b8a);display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 8px 24px rgba(255,63,108,.35)}
+.login-logo-z{font-family:var(--ff-head);font-size:32px;font-weight:800;color:#fff;line-height:1}
+.login-title{font-family:var(--ff-head);font-size:26px;font-weight:800;color:var(--text)}
+.login-tagline{font-size:13px;color:var(--text2);margin-bottom:28px}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r24);padding:24px;width:100%;max-width:360px}
+.login-step-bar{display:flex;gap:6px;margin-bottom:20px}
+.login-step{flex:1;height:3px;border-radius:99px;background:var(--border);transition:background .3s}
+.login-step.on{background:var(--accent)}
+.login-section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px}
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.user-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r12);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .18s;color:var(--text)}
+.user-btn:active{transform:scale(.94)}
+.user-btn.sel{border-color:var(--accent);background:var(--accent-dim)}
+.user-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--ff-head);font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:10px;color:var(--text2);text-transform:capitalize}
+
+/* PIN */
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:20px}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border2);transition:all .15s}
+.pin-dot.on{background:var(--accent);border-color:var(--accent);transform:scale(1.15)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.num-key{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r12);padding:15px 8px;font-family:var(--ff-head);font-size:20px;font-weight:700;color:var(--text);cursor:pointer;transition:all .12s;text-align:center;user-select:none}
+.num-key:active{background:var(--accent-dim);border-color:var(--accent);transform:scale(.93)}
+.num-key.del{font-size:16px}
+.login-err{color:var(--accent);font-size:12px;text-align:center;min-height:16px;margin-top:10px}
+.login-back{color:var(--text2);font-size:12px;text-align:center;margin-top:12px;cursor:pointer}
+.login-back:hover{color:var(--text)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.shake{animation:shake .3s}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.show{display:flex}
+.topbar{position:sticky;top:0;z-index:200;height:var(--top);background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;transition:background .25s,border .25s}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo-wrap{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ff3f6c,#ff6b8a);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.tb-logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.tb-logo-z{font-family:var(--ff-head);font-size:15px;font-weight:800;color:#fff}
+.tb-title{font-family:var(--ff-head);font-size:17px;font-weight:700;color:var(--text)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s}
+.icon-btn:active{transform:scale(.9)}
+.chip{background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:4px 10px 4px 5px;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.chip-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:16px;padding-bottom:calc(var(--nav) + 16px)}
+.page{display:none;animation:pageIn .25s ease}
+.page.on{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom);transition:background .25s}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:var(--ff-body);font-size:10px;font-weight:500;transition:color .18s;position:relative}
+.bnav-item.on{color:var(--accent)}
+.bnav-icon{font-size:20px;transition:transform .2s}
+.bnav-item.on .bnav-icon{transform:translateY(-1px)}
+.bnav-badge{position:absolute;top:7px;right:calc(50% - 19px);background:var(--accent);color:#fff;font-size:9px;font-weight:700;border-radius:99px;padding:1px 4px;min-width:15px;text-align:center}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(var(--nav) + 14px);right:16px;width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,#ff3f6c,#c0284a);border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,63,108,.45);transition:transform .15s,box-shadow .15s;z-index:100}
+.fab:active{transform:scale(.91)}
+.fab.hide{display:none}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r16);padding:16px;margin-bottom:12px;transition:transform .15s}
+.card:active{transform:scale(.99)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-family:var(--ff-head);font-size:15px;font-weight:700;color:var(--text)}
+.card-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:14px 12px}
+.stat-val{font-family:var(--ff-head);font-size:21px;font-weight:800;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:3px}
+.stat.accent{background:linear-gradient(135deg,#ff3f6c,#c0284a);border:none}
+.stat.accent .stat-val,.stat.accent .stat-label{color:#fff}
+.stat.green{background:linear-gradient(135deg,#00d68f,#00a86b);border:none}
+.stat.green .stat-val,.stat.green .stat-label{color:#fff}
+.stat.amber{background:linear-gradient(135deg,#ffb340,#e08000);border:none}
+.stat.amber .stat-val,.stat.amber .stat-label{color:#fff}
+.stat.blue{background:linear-gradient(135deg,#4d9fff,#2060cc);border:none}
+.stat.blue .stat-val,.stat.blue .stat-label{color:#fff}
+
+/* SECTION */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+.sec-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.7px;text-transform:uppercase}
+
+/* FILTER CHIPS */
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.fc{flex-shrink:0;background:var(--surface);border:1.5px solid var(--border);border-radius:99px;padding:5px 13px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.fc.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.2px}
+.bg{background:var(--green-dim);color:var(--green)}
+.br{background:var(--red-dim);color:var(--red)}
+.by{background:var(--amber-dim);color:var(--amber)}
+.bb{background:var(--blue-dim);color:var(--blue)}
+.bp{background:var(--purple-dim);color:var(--purple)}
+
+/* LIST ITEMS */
+.li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.li:last-child{border-bottom:none}
+.li-av{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-head);font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.li-info{flex:1;min-width:0}
+.li-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-sub{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-right{text-align:right;flex-shrink:0}
+.li-amount{font-family:var(--ff-head);font-size:14px;font-weight:700;color:var(--text)}
+
+/* CHART */
+.chart-wrap{position:relative;height:190px;margin:8px 0}
+
+/* ALERT */
+.alert{border-radius:var(--r12);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.alert.warn{background:var(--amber-dim);border:1px solid rgba(255,179,64,.25)}
+.alert.danger{background:var(--red-dim);border:1px solid rgba(255,77,77,.2)}
+.alert.success{background:var(--green-dim);border:1px solid rgba(0,214,143,.2)}
+.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.alert-text{font-size:12px;color:var(--text2)}
+.alert-text strong{display:block;font-size:13px;color:var(--text);margin-bottom:2px}
+
+/* PROGRESS */
+.prog{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:7px}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s ease}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r10);padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:var(--ff-body);transition:border .18s;appearance:none;-webkit-appearance:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;background:linear-gradient(135deg,#ff3f6c,#c0284a);color:#fff;border:none;border-radius:var(--r12);padding:13px;font-family:var(--ff-head);font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:6px;letter-spacing:.3px}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r10);padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--ff-body)}
+.btn-secondary:active{transform:scale(.95)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,77,.2);border-radius:var(--r10);padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ff-body)}
+.btn-sm{background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--ff-head);letter-spacing:.2px;transition:transform .12s}
+.btn-sm:active{transform:scale(.92)}
+
+/* INFO ROW */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text2)}
+.info-val{font-weight:600;color:var(--text)}
+
+/* BOTTLE MINI GRID */
+.bottle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.bottle-cell{background:var(--surface2);border-radius:var(--r8);padding:8px 6px;text-align:center;border:1px solid var(--border)}
+.bottle-cell-label{font-size:10px;color:var(--text2)}
+.bottle-cell-val{font-family:var(--ff-head);font-size:15px;font-weight:700;color:var(--text);margin-top:2px}
+.bottle-cell-price{font-size:10px;color:var(--accent)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:none;align-items:flex-end;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex;animation:bgIn .2s}
+@keyframes bgIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:var(--r24) var(--r24) 0 0;padding:20px 20px 32px;width:100%;max-height:92vh;overflow-y:auto;animation:modalUp .28s cubic-bezier(.34,1.1,.64,1)}
+@keyframes modalUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 18px}
+.modal-title{font-family:var(--ff-head);font-size:18px;font-weight:800;color:var(--text);margin-bottom:18px}
+
+/* TOAST */
+#toast{position:fixed;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:10px 16px;font-size:13px;font-weight:600;color:var(--text);z-index:999;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* PAYMENT MODAL specific */
+.pay-order-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pay-order-row:last-child{border-bottom:none}
+
+/* BOTTLE INPUT ROWS */
+.bottle-input-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.bottle-input-row:last-child{border-bottom:none}
+.bottle-input-label{flex:1;font-size:13px;color:var(--text)}
+.bottle-input-price{font-size:11px;color:var(--accent);min-width:50px}
+.bottle-qty-input{width:70px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r8);padding:7px 10px;font-size:14px;font-weight:700;color:var(--text);text-align:center;outline:none;font-family:var(--ff-head)}
+.bottle-qty-input:focus{border-color:var(--accent)}
+
+/* AUDIT */
+.audit-row{padding:10px 0;border-bottom:1px solid var(--border)}
+.audit-row:last-child{border-bottom:none}
+.audit-action{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-bottom:4px}
+.audit-create{background:var(--green-dim);color:var(--green)}
+.audit-update{background:var(--blue-dim);color:var(--blue)}
+.audit-delete{background:var(--red-dim);color:var(--red)}
+
+/* LOADING SKELETON */
+.skel{background:var(--border);border-radius:var(--r8);animation:skel 1.4s ease infinite}
+@keyframes skel{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+.empty-icon{font-size:48px;margin-bottom:14px;opacity:.4}
+.empty-text{font-size:15px;font-weight:600;color:var(--text2)}
+.empty-sub{font-size:13px;color:var(--text3);margin-top:4px}
+
+/* PRICE HISTORY */
+.price-hist-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.price-hist-row:last-child{border-bottom:none}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ROLE TAG */
+.role-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px}
+.role-owner{background:var(--accent-dim);color:var(--accent)}
+.role-partner{background:var(--purple-dim);color:var(--purple)}
+.role-staff{background:var(--blue-dim);color:var(--blue)}
+
+/* MORE PAGE menu */
+.menu-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.menu-item:last-child{border-bottom:none}
+.menu-item:active{opacity:.6}
+.menu-icon-wrap{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.menu-label{font-size:14px;font-weight:600;color:var(--text)}
+.menu-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.menu-chevron{margin-left:auto;color:var(--text3);font-size:16px}
+
+/* SECTION DIVIDER */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* Version badge */
+.version{text-align:center;font-size:11px;color:var(--text3);padding:8px 0}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-ring"><div class="splash-z">Z</div></div>
+  <div class="splash-brand">ZIPPit</div>
+  <div class="splash-sub">Water Bottle Business Manager</div>
+  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-logo"><div class="login-logo-z">Z</div></div>
+  <div class="login-title font-head">ZIPPit</div>
+  <div class="login-tagline">Sign in to continue</div>
+  <div class="login-card">
+    <div class="login-step-bar">
+      <div class="login-step on" id="ls1"></div>
+      <div class="login-step" id="ls2"></div>
+    </div>
+    <!-- Step 1: pick user -->
+    <div id="step-user">
+      <div class="login-section-label">Who are you?</div>
+      <div class="user-grid" id="user-grid">
+        <div class="skel" style="height:80px;border-radius:12px"></div>
+        <div class="skel" style="height:80px;border-radius:12px"></div>
+        <div class="skel" style="height:80px;border-radius:12px"></div>
+        <div class="skel" style="height:80px;border-radius:12px"></div>
+      </div>
+    </div>
+    <!-- Step 2: PIN -->
+    <div id="step-pin" class="hide">
+      <div class="login-section-label" id="pin-for-label">Enter PIN</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="numpad" id="numpad"></div>
+      <div class="login-err" id="pin-err"></div>
+      <div class="login-back" onclick="goStep1()">← Change user</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✓ <span id="toast-msg">Saved</span></div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo-wrap" id="tb-logo-wrap" onclick="if(STATE.user?.role==='owner')openLogoModal()">
+        <div class="tb-logo-z" id="tb-logo-text">Z</div>
+        <img id="tb-logo-img" src="" style="display:none"/>
+      </div>
+      <span class="tb-title" id="tb-title">Dashboard</span>
+    </div>
+    <div class="tb-right">
+      <div class="chip">
+        <div class="chip-av" id="chip-av">A</div>
+        <span id="chip-name">User</span>
+      </div>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page on" id="pg-dashboard">
+      <div class="stat-grid" id="dash-stats">
+        <div class="stat accent"><div class="stat-val">—</div><div class="stat-label">Total Revenue</div></div>
+        <div class="stat green"><div class="stat-val">—</div><div class="stat-label">Net Profit</div></div>
+        <div class="stat amber"><div class="stat-val">—</div><div class="stat-label">Pending</div></div>
+        <div class="stat blue"><div class="stat-val">—</div><div class="stat-label">Collected</div></div>
+      </div>
+      <div id="dash-alert-wrap"></div>
+      <div class="sec-header">
+        <span class="sec-title">Revenue — Last 7 Days</span>
+        <span class="badge bb" id="dash-today-badge">Today</span>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="chart-wrap"><canvas id="chart-dash"></canvas></div>
+      </div>
+      <div class="sec-header">
+        <span class="sec-title">Top Clients</span>
+        <button class="btn-sm" onclick="showPage('clients')">All</button>
+      </div>
+      <div class="card" id="dash-top-clients">
+        <div class="skel" style="height:44px;margin-bottom:8px"></div>
+        <div class="skel" style="height:44px;margin-bottom:8px"></div>
+        <div class="skel" style="height:44px"></div>
+      </div>
+      <div class="sec-header">
+        <span class="sec-title">Recent Sales</span>
+        <button class="btn-sm" onclick="showPage('sales')">All</button>
+      </div>
+      <div class="card" id="dash-recent-sales">
+        <div class="skel" style="height:44px;margin-bottom:8px"></div>
+        <div class="skel" style="height:44px"></div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="page" id="pg-inventory">
+      <div class="stat-grid" id="inv-stats">
+        <div class="stat"><div class="stat-val" id="inv-stat-batches">—</div><div class="stat-label">Batches</div></div>
+        <div class="stat green"><div class="stat-val" id="inv-stat-stock">—</div><div class="stat-label">Total Stock</div></div>
+      </div>
+      <div class="sec-header"><span class="sec-title">All Batches</span></div>
+      <div id="inv-list"><div class="skel" style="height:120px;border-radius:16px;margin-bottom:12px"></div></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="page" id="pg-clients">
+      <div class="chips" id="client-filter-chips">
+        <span class="fc on" data-filter="all">All</span>
+        <span class="fc" data-filter="pending">With Pending</span>
+        <span class="fc" data-filter="active">Active</span>
+      </div>
+      <div class="sec-header">
+        <span class="sec-title" id="client-count-label">Clients</span>
+        <input id="client-search" class="form-input" placeholder="Search..." style="width:120px;padding:5px 10px;font-size:12px" oninput="renderClients()"/>
+      </div>
+      <div id="client-list"><div class="skel" style="height:60px;border-radius:12px;margin-bottom:8px"></div></div>
+    </div>
+
+    <!-- SALES -->
+    <div class="page" id="pg-sales">
+      <div class="chips" id="sales-filter-chips">
+        <span class="fc on" data-val="">All</span>
+        <span class="fc" data-val="paid">Paid</span>
+        <span class="fc" data-val="partial">Partial</span>
+        <span class="fc" data-val="pending">Pending</span>
+      </div>
+      <div class="stat-grid" id="sales-stats">
+        <div class="stat accent"><div class="stat-val" id="sales-rev">—</div><div class="stat-label">Revenue</div></div>
+        <div class="stat amber"><div class="stat-val" id="sales-pending">—</div><div class="stat-label">Pending</div></div>
+      </div>
+      <div class="card" style="padding:12px" id="sales-chart-card">
+        <div class="sec-title" style="margin-bottom:10px">Revenue by Client</div>
+        <div class="chart-wrap"><canvas id="chart-sales"></canvas></div>
+      </div>
+      <div class="sec-header"><span class="sec-title" id="sales-count-label">Sales</span></div>
+      <div id="sales-list"><div class="skel" style="height:60px;border-radius:12px;margin-bottom:8px"></div></div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="page" id="pg-payments">
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-val" id="pay-total-val" style="color:var(--red)">—</div><div class="stat-label">Outstanding</div></div>
+        <div class="stat"><div class="stat-val" id="pay-count-val">—</div><div class="stat-label">Clients with Due</div></div>
+      </div>
+      <div class="sec-header"><span class="sec-title">Pending by Client</span></div>
+      <div id="pay-list"><div class="skel" style="height:80px;border-radius:12px;margin-bottom:8px"></div></div>
+    </div>
+
+    <!-- PROFIT -->
+    <div class="page" id="pg-profit">
+      <div class="chips" id="profit-group-chips">
+        <span class="fc on" data-g="client">By Client</span>
+        <span class="fc" data-g="month">By Month</span>
+        <span class="fc" data-g="year">By Year</span>
+      </div>
+      <div class="stat-grid" id="profit-stats">
+        <div class="stat accent"><div class="stat-val" id="pr-rev">—</div><div class="stat-label">Revenue</div></div>
+        <div class="stat green"><div class="stat-val" id="pr-profit">—</div><div class="stat-label">Net Profit</div></div>
+        <div class="stat"><div class="stat-val" id="pr-margin">—</div><div class="stat-label">Avg Margin</div></div>
+        <div class="stat"><div class="stat-val" id="pr-expenses" style="color:var(--red)">—</div><div class="stat-label">Expenses</div></div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="chart-wrap"><canvas id="chart-profit"></canvas></div>
+      </div>
+      <div class="sec-header"><span class="sec-title">Breakdown</span></div>
+      <div id="profit-list"><div class="skel" style="height:60px;border-radius:12px;margin-bottom:8px"></div></div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="page" id="pg-expenses">
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-val" id="exp-month" style="color:var(--red)">—</div><div class="stat-label">This Month</div></div>
+        <div class="stat"><div class="stat-val" id="exp-total">—</div><div class="stat-label">Total</div></div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="chart-wrap"><canvas id="chart-expense"></canvas></div>
+      </div>
+      <div class="sec-header"><span class="sec-title">Expenses</span></div>
+      <div id="exp-list"><div class="skel" style="height:60px;border-radius:12px;margin-bottom:8px"></div></div>
+    </div>
+
+    <!-- MORE -->
+    <div class="page" id="pg-more">
+      <div class="card" style="padding:0 16px">
+        <div class="menu-item" onclick="showPage('profit')" id="menu-profit">
+          <div class="menu-icon-wrap" style="background:var(--green-dim)">💰</div>
+          <div><div class="menu-label">Profit Report</div><div class="menu-sub">Revenue vs profit, margins</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+        <div class="menu-item" onclick="showPage('payments')" id="menu-payments">
+          <div class="menu-icon-wrap" style="background:var(--amber-dim)">💳</div>
+          <div><div class="menu-label">Pending Payments</div><div class="menu-sub">Collect & track dues</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+        <div class="menu-item" onclick="showPage('expenses')" id="menu-expenses">
+          <div class="menu-icon-wrap" style="background:var(--red-dim)">💸</div>
+          <div><div class="menu-label">Expenses</div><div class="menu-sub">All business costs</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+      </div>
+      <div class="sec-header"><span class="sec-title">Owner Tools</span></div>
+      <div class="card" style="padding:0 16px" id="owner-menu">
+        <div class="menu-item" onclick="openSettingsModal()">
+          <div class="menu-icon-wrap" style="background:var(--accent-dim)">⚙️</div>
+          <div><div class="menu-label">Settings</div><div class="menu-sub">Bottle types, sizes, cost components</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+        <div class="menu-item" onclick="openUsersModal()">
+          <div class="menu-icon-wrap" style="background:var(--blue-dim)">👥</div>
+          <div><div class="menu-label">Users & PINs</div><div class="menu-sub">Manage team access</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+        <div class="menu-item" onclick="openAuditModal()">
+          <div class="menu-icon-wrap" style="background:var(--purple-dim)">📋</div>
+          <div><div class="menu-label">Audit Log</div><div class="menu-sub">Full change history</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+        <div class="menu-item" onclick="openLogoModal()">
+          <div class="menu-icon-wrap" style="background:var(--green-dim)">🖼️</div>
+          <div><div class="menu-label">App Logo</div><div class="menu-sub">Upload / update ZIPPit logo</div></div>
+          <div class="menu-chevron">›</div>
+        </div>
+      </div>
+      <div class="sec-header"><span class="sec-title">Session</span></div>
+      <div class="card" style="padding:0 16px">
+        <div class="menu-item" onclick="logout()">
+          <div class="menu-icon-wrap" style="background:var(--red-dim)">🚪</div>
+          <div><div class="menu-label" style="color:var(--red)">Logout</div><div class="menu-sub" id="logout-sub">Logged in as —</div></div>
+        </div>
+      </div>
+      <div class="version">ZIPPit v1.0 · Made for your business</div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav" id="bnav">
+    <button class="bnav-item on" data-page="dashboard" onclick="showPage('dashboard')">
+      <span class="bnav-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="bnav-item" data-page="inventory" onclick="showPage('inventory')">
+      <span class="bnav-icon">📦</span><span>Stock</span>
+    </button>
+    <button class="bnav-item" data-page="clients" onclick="showPage('clients')">
+      <span class="bnav-icon">👥</span><span>Clients</span>
+    </button>
+    <button class="bnav-item" data-page="sales" onclick="showPage('sales')">
+      <span class="bnav-icon">🧾</span><span>Sales</span>
+      <span class="bnav-badge hide" id="sales-badge">0</span>
+    </button>
+    <button class="bnav-item" data-page="more" onclick="showPage('more')">
+      <span class="bnav-icon">☰</span><span>More</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="openAddModal()">＋</button>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- ADD SALE MODAL -->
+<div class="modal-bg" id="modal-sale">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="sale-modal-title">New Sale</div>
+    <div class="form-group">
+      <label class="form-label">Client</label>
+      <select class="form-select" id="sale-client" onchange="loadSaleClientPrices()">
+        <option value="">— Select client —</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sale Date</label>
+        <input class="form-input" type="date" id="sale-date"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Batch</label>
+        <select class="form-select" id="sale-batch">
+          <option value="">— Batch —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-label">Bottles Sold</div>
+    <div id="sale-bottle-rows" style="margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r12);padding:4px 12px">
+      <div class="empty" style="padding:20px"><div class="empty-text" style="font-size:13px">Select a client first</div></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Status</label>
+      <select class="form-select" id="sale-pay-status" onchange="togglePaidField()">
+        <option value="paid">Paid</option>
+        <option value="partial">Partial</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+    <div class="form-group hide" id="paid-field">
+      <label class="form-label">Amount Paid Now (₹)</label>
+      <input class="form-input" type="number" id="sale-paid-amount" placeholder="Enter 0 if nothing paid"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="sale-notes" placeholder="Any remarks..."/>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--r10);padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:6px" id="sale-meta-info">
+      <div class="info-row" style="padding:4px 0"><span class="info-label">Entered by</span><span class="info-val" id="sale-enterer">—</span></div>
+      <div class="info-row" style="padding:4px 0;border:none"><span class="info-label">Entry timestamp</span><span class="info-val" id="sale-ts">—</span></div>
+    </div>
+    <button class="btn-primary" onclick="submitSale()">Save Sale</button>
+  </div>
+</div>
+
+<!-- ADD INVENTORY MODAL -->
+<div class="modal-bg" id="modal-inventory">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Batch</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Batch No.</label>
+        <input class="form-input" id="inv-batch-no" placeholder="e.g. B-2024-013"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Purchase Date</label>
+        <input class="form-input" type="date" id="inv-date"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Total Delivery Charge (₹)</label>
+      <input class="form-input" type="number" id="inv-delivery" placeholder="0" oninput="recalcDelivery()"/>
+    </div>
+    <div class="form-label" style="margin-bottom:8px">Bottles in this Batch</div>
+    <div id="inv-bottle-rows" style="border:1px solid var(--border);border-radius:var(--r12);padding:4px 12px;margin-bottom:14px"></div>
+    <div style="background:var(--surface2);border-radius:var(--r10);padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:6px" id="inv-delivery-preview"></div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="inv-notes" placeholder="Any remarks..."/>
+    </div>
+    <button class="btn-primary" onclick="submitBatch()">Save Batch</button>
+  </div>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-bg" id="modal-client">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="client-modal-title">New Client</div>
+    <div class="form-group">
+      <label class="form-label">Client Name</label>
+      <input class="form-input" id="cli-name" placeholder="e.g. Royal Sweets"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input" id="cli-location" placeholder="Area / City"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-input" id="cli-phone" placeholder="+91"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email (optional)</label>
+      <input class="form-input" id="cli-email" placeholder="email@example.com"/>
+    </div>
+    <div class="form-label" style="margin-bottom:8px">Selling Prices (₹)</div>
+    <div id="cli-price-rows" style="border:1px solid var(--border);border-radius:var(--r12);padding:4px 12px;margin-bottom:14px"></div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="cli-notes" placeholder="Any remarks..."/>
+    </div>
+    <button class="btn-primary" onclick="submitClient()">Save Client</button>
+  </div>
+</div>
+
+<!-- ADD EXPENSE MODAL -->
+<div class="modal-bg" id="modal-expense">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="exp-modal-title">New Expense</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date" id="exp-date"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount (₹)</label>
+        <input class="form-input" type="number" id="exp-amount" placeholder="0"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="exp-category">
+        <option>Vehicle</option><option>Salary</option><option>Utilities</option>
+        <option>Packaging</option><option>Maintenance</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason</label>
+      <input class="form-input" id="exp-reason" placeholder="What was this expense for?"/>
+    </div>
+    <button class="btn-primary" onclick="submitExpense()">Save Expense</button>
+  </div>
+</div>
+
+<!-- COLLECT PAYMENT MODAL -->
+<div class="modal-bg" id="modal-payment">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="pay-modal-client">Collect Payment</div>
+    <div style="background:var(--surface2);border-radius:var(--r12);padding:12px;margin-bottom:14px">
+      <div class="info-row" style="padding:4px 0"><span class="info-label">Total Outstanding</span><span class="info-val" id="pay-total-outstanding" style="color:var(--red)">—</span></div>
+      <div class="info-row" style="padding:4px 0;border:none"><span class="info-label">Pending Orders</span><span class="info-val" id="pay-order-count">—</span></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Amount Received (₹)</label>
+        <input class="form-input" type="number" id="pay-amount" placeholder="0" oninput="previewPayment()"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Date</label>
+        <input class="form-input" type="date" id="pay-date"/>
+      </div>
+    </div>
+    <div id="pay-preview" class="hide">
+      <div class="form-label" style="margin-bottom:8px">Auto-Distribution (oldest first)</div>
+      <div style="border:1px solid var(--border);border-radius:var(--r12);padding:4px 12px;margin-bottom:12px" id="pay-preview-rows"></div>
+      <div style="background:var(--surface2);border-radius:var(--r10);padding:10px 12px;display:flex;justify-content:space-between;font-size:13px;margin-bottom:12px">
+        <span style="color:var(--text2)">Still pending after</span>
+        <span class="bold" id="pay-still-pending" style="color:var(--red)">—</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="pay-notes" placeholder="e.g. Cash / UPI ref..."/>
+    </div>
+    <button class="btn-primary" onclick="submitPayment()">Confirm Payment</button>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL MODAL -->
+<div class="modal-bg" id="modal-client-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+      <div class="li-av" id="cdet-av" style="width:48px;height:48px;border-radius:14px;font-size:16px">AB</div>
+      <div>
+        <div class="modal-title" id="cdet-name" style="margin-bottom:2px">Client</div>
+        <div style="font-size:12px;color:var(--text2)" id="cdet-sub">—</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div class="sec-title" style="margin-bottom:8px">Current Prices</div>
+      <div id="cdet-prices"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div class="sec-title" style="margin-bottom:8px">Price History</div>
+      <div id="cdet-price-hist"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div class="sec-title" style="margin-bottom:8px">Update Price</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Bottle</label>
+          <select class="form-select" id="cdet-bottle-sel" style="font-size:12px;padding:8px"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Price (₹)</label>
+          <input class="form-input" type="number" id="cdet-new-price" placeholder="0"/>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitPriceUpdate()">Update Price</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-secondary w100" onclick="openEditClientModal()">Edit Details</button>
+      <button class="btn-danger w100" onclick="deleteClient()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="modal-settings">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Settings</div>
+    <div class="form-group">
+      <label class="form-label">Bottle Formats</label>
+      <div id="settings-formats" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="new-format" placeholder="e.g. Eco" style="flex:1"/>
+        <button class="btn-sm" style="height:40px" onclick="addSettingItem('bottleFormats','new-format','settings-formats')">Add</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bottle Sizes</label>
+      <div id="settings-sizes" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="new-size" placeholder="e.g. 2L" style="flex:1"/>
+        <button class="btn-sm" style="height:40px" onclick="addSettingItem('bottleSizes','new-size','settings-sizes')">Add</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cost Components</label>
+      <div id="settings-costs" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="new-cost" placeholder="e.g. Label Cost" style="flex:1"/>
+        <button class="btn-sm" style="height:40px" onclick="addSettingItem('costComponents','new-cost','settings-costs')">Add</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Expense Categories</label>
+      <div id="settings-expcats" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="new-expcat" placeholder="e.g. Marketing" style="flex:1"/>
+        <button class="btn-sm" style="height:40px" onclick="addSettingItem('expenseCategories','new-expcat','settings-expcats')">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USERS MODAL -->
+<div class="modal-bg" id="modal-users">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Users & PINs</div>
+    <div id="users-list" style="margin-bottom:16px"></div>
+    <div class="divider"></div>
+    <div class="sec-title" style="margin-bottom:12px">Add New User</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="new-user-name" placeholder="Full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Initials</label>
+        <input class="form-input" id="new-user-initials" placeholder="AB" maxlength="2"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-select" id="new-user-role">
+          <option value="owner">Owner</option>
+          <option value="partner">Partner</option>
+          <option value="staff" selected>Staff</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">4-Digit PIN</label>
+        <input class="form-input" id="new-user-pin" type="password" maxlength="4" placeholder="****"/>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="submitNewUser()">Add User</button>
+  </div>
+</div>
+
+<!-- AUDIT MODAL -->
+<div class="modal-bg" id="modal-audit">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Audit Log</div>
+    <div class="chips" id="audit-chips" style="margin-bottom:12px">
+      <span class="fc on" data-sh="">All</span>
+      <span class="fc" data-sh="Sales">Sales</span>
+      <span class="fc" data-sh="Clients">Clients</span>
+      <span class="fc" data-sh="Inventory">Inventory</span>
+      <span class="fc" data-sh="Payments">Payments</span>
+    </div>
+    <div id="audit-list"></div>
+  </div>
+</div>
+
+<!-- LOGO MODAL -->
+<div class="modal-bg" id="modal-logo">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">App Logo</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,#ff3f6c,#ff6b8a);display:flex;align-items:center;justify-content:center;overflow:hidden" id="logo-preview-wrap">
+        <div style="font-family:var(--ff-head);font-size:40px;font-weight:800;color:#fff" id="logo-preview-text">Z</div>
+        <img id="logo-preview-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:24px"/>
+      </div>
+      <div style="font-size:13px;color:var(--text2);text-align:center">Upload your ZIPPit logo.<br>It will appear on the login screen and topbar.</div>
+    </div>
+    <input type="file" id="logo-file-input" accept="image/*" style="display:none" onchange="previewLogo(event)"/>
+    <button class="btn-secondary w100" style="margin-bottom:10px" onclick="document.getElementById('logo-file-input').click()">Choose Image</button>
+    <button class="btn-primary" onclick="saveLogo()">Save Logo</button>
+    <button class="btn-danger w100" style="margin-top:8px" onclick="removeLogo()">Remove Logo</button>
+  </div>
+</div>
+
+<!-- SALE DETAIL MODAL -->
+<div class="modal-bg" id="modal-sale-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Sale Details</div>
+    <div id="sale-detail-content"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-secondary w100" onclick="openEditSalePayment()">Update Payment</button>
+      <button class="btn-danger w100" onclick="deleteSale()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycbzyrf2OAVQsCkvc26wIDeXbEcORj1KiELEHALxdXEzVbyGQakTIzYDn1FYJkTiPNxQg/exec';
+
+const STATE = {
+  user: null,
+  settings: {},
+  users: [],
+  batches: [],
+  clients: [],
+  sales: [],
+  saleItems: [],
+  payments: [],
+  expenses: [],
+  auditLog: [],
+  pendingSummary: [],
+  profitReport: null,
+  charts: {},
+  selectedUser: null,
+  editingClientId: null,
+  editingSaleId: null,
+  editingExpId: null,
+  payingClientId: null,
+  payingOrders: [],
+  logoDataUrl: null,
+};
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const fmt = n => '₹' + (Number(n)||0).toLocaleString('en-IN');
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+const now8601 = () => new Date().toISOString();
+const today = () => new Date().toISOString().split('T')[0];
+const initials = name => name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const colors = ['#ff3f6c','#4d9fff','#00d68f','#ffb340','#9b6dff','#ff7043','#26c6da','#ab47bc'];
+const clientColor = id => colors[Math.abs(simpleHash(id||'x')) % colors.length];
+function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
+
+async function api(action, body={}) {
+  try {
+    const res = await fetch(API, {
+      method:'POST',
+      body: JSON.stringify({action,...body}),
+    });
+    return await res.json();
+  } catch(e) {
+    return {ok:false, error:e.message};
+  }
+}
+
+function toast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.style.background = isErr ? 'var(--red-dim)' : 'var(--surface)';
+  t.style.color = isErr ? 'var(--red)' : 'var(--text)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('show'); });
+});
+
+// ═══════════════════════════════════════════════════════
+//  THEME
+// ═══════════════════════════════════════════════════════
+let isLight = false;
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('zippit-theme', isLight ? 'light' : 'dark');
+  redrawCharts();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SPLASH → LOGIN
+// ═══════════════════════════════════════════════════════
+window.onload = async () => {
+  // Theme
+  if(localStorage.getItem('zippit-theme')==='light') toggleTheme();
+  // Logo
+  const savedLogo = localStorage.getItem('zippit-logo');
+  if(savedLogo) applyLogo(savedLogo);
+
+  await new Promise(r=>setTimeout(r,2200));
+  document.getElementById('splash').style.opacity='0';
+  document.getElementById('splash').style.transition='opacity .5s';
+  setTimeout(()=>document.getElementById('splash').style.display='none',600);
+  await loadUsers();
+  buildNumpad();
+};
+
+async function loadUsers() {
+  const r = await api('getUsers');
+  if(r.ok) {
+    STATE.users = r.data.filter(u=>u.active==='TRUE'||u.active===true);
+    buildUserGrid();
+  }
+}
+
+function buildUserGrid() {
+  const grid = document.getElementById('user-grid');
+  grid.innerHTML = '';
+  STATE.users.forEach(u => {
+    const btn = document.createElement('button');
+    btn.className = 'user-btn';
+    btn.innerHTML = `
+      <div class="user-av" style="background:${u.color||'#ff3f6c'}">${u.initials||initials(u.name)}</div>
+      <div class="user-name">${u.name}</div>
+      <div class="user-role">${u.role}</div>
+    `;
+    btn.onclick = () => selectUser(u, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function selectUser(u, btn) {
+  STATE.selectedUser = u;
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  setTimeout(()=>{
+    document.getElementById('step-user').classList.add('hide');
+    document.getElementById('step-pin').classList.remove('hide');
+    document.getElementById('ls2').classList.add('on');
+    document.getElementById('pin-for-label').textContent = `PIN for ${u.name}`;
+    pinBuf = '';
+    renderPinDots();
+  }, 180);
+}
+
+function goStep1() {
+  document.getElementById('step-user').classList.remove('hide');
+  document.getElementById('step-pin').classList.add('hide');
+  document.getElementById('ls2').classList.remove('on');
+  document.getElementById('pin-err').textContent='';
+  pinBuf='';
+}
+
+// ═══════════════════════════════════════════════════════
+//  PIN
+// ═══════════════════════════════════════════════════════
+let pinBuf = '';
+function buildNumpad() {
+  const grid = document.getElementById('numpad');
+  grid.innerHTML = '';
+  [1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(k=>{
+    const btn = document.createElement('div');
+    btn.className = 'num-key' + (k==='⌫'?' del':'');
+    btn.textContent = k;
+    if(k==='') { btn.style.visibility='hidden'; grid.appendChild(btn); return; }
+    btn.onclick = () => {
+      if(k==='⌫') { pinBuf=pinBuf.slice(0,-1); }
+      else if(pinBuf.length<4) { pinBuf+=k; }
+      renderPinDots();
+      if(pinBuf.length===4) setTimeout(checkPin,200);
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function renderPinDots() {
+  for(let i=0;i<4;i++)
+    document.getElementById('pd'+i).classList.toggle('on', i<pinBuf.length);
+}
+
+async function checkPin() {
+  const r = await api('login',{name:STATE.selectedUser.name, pin:pinBuf});
+  if(r.ok) {
+    enterApp(r.user);
+  } else {
+    document.getElementById('pin-err').textContent = 'Incorrect PIN. Try again.';
+    document.getElementById('step-pin').classList.add('shake');
+    setTimeout(()=>document.getElementById('step-pin').classList.remove('shake'),350);
+    pinBuf=''; renderPinDots();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENTER APP
+// ═══════════════════════════════════════════════════════
+async function enterApp(user) {
+  STATE.user = user;
+  document.getElementById('login').classList.add('out');
+  setTimeout(()=>document.getElementById('login').style.display='none',450);
+  document.getElementById('app').classList.add('show');
+
+  // Set UI
+  document.getElementById('chip-av').textContent = user.initials;
+  document.getElementById('chip-av').style.background = STATE.selectedUser?.color||'#ff3f6c';
+  document.getElementById('chip-name').textContent = user.name;
+  document.getElementById('logout-sub').textContent = `${user.name} · ${user.role}`;
+  document.getElementById('sale-enterer').textContent = user.name;
+  document.getElementById('sale-ts').textContent = new Date().toLocaleString('en-IN');
+
+  setupRoles();
+  await loadAll();
+  renderDashboard();
+}
+
+function setupRoles() {
+  const r = STATE.user.role;
+  // Staff: hide profit, payments, expenses, owner tools
+  if(r==='staff') {
+    document.getElementById('menu-profit').classList.add('hide');
+    document.getElementById('menu-payments').classList.add('hide');
+    document.getElementById('menu-expenses').classList.add('hide');
+    document.getElementById('owner-menu').classList.add('hide');
+  }
+  // Partner: hide owner-only tools (users, audit already hidden in menu)
+  if(r==='partner') {
+    document.getElementById('owner-menu').classList.add('hide');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOAD ALL DATA
+// ═══════════════════════════════════════════════════════
+async function loadAll() {
+  const [sets,batches,clients,sales] = await Promise.all([
+    api('getSettings'),
+    api('getBatches'),
+    api('getClients'),
+    api('getSales',{}),
+  ]);
+  if(sets.ok) STATE.settings = sets.data;
+  if(batches.ok) STATE.batches = batches.data;
+  if(clients.ok) STATE.clients = clients.data;
+  if(sales.ok) STATE.sales = sales.data;
+
+  if(STATE.user.role!=='staff') {
+    const [pay,exp,pend] = await Promise.all([
+      api('getPayments',{}),
+      api('getExpenses',{}),
+      api('getPendingSummary'),
+    ]);
+    if(pay.ok) STATE.payments = pay.data;
+    if(exp.ok) STATE.expenses = exp.data;
+    if(pend.ok) STATE.pendingSummary = pend.data;
+  }
+  updateSalesBadge();
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAGE ROUTING
+// ═══════════════════════════════════════════════════════
+const PAGE_TITLES = {
+  dashboard:'Dashboard', inventory:'Inventory', clients:'Clients',
+  sales:'Sales', payments:'Payments', profit:'Profit',
+  expenses:'Expenses', more:'More'
+};
+const SHOW_FAB = ['inventory','clients','sales','expenses'];
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('on'));
+  const pg = document.getElementById('pg-'+name);
+  if(pg) pg.classList.add('on');
+  const nb = document.querySelector(`.bnav-item[data-page="${name}"]`);
+  if(nb) nb.classList.add('on');
+  document.getElementById('tb-title').textContent = PAGE_TITLES[name]||name;
+  document.getElementById('fab').classList.toggle('hide', !SHOW_FAB.includes(name));
+
+  if(name==='dashboard') renderDashboard();
+  if(name==='inventory')  renderInventory();
+  if(name==='clients')    renderClients();
+  if(name==='sales')      renderSales();
+  if(name==='payments')   renderPayments();
+  if(name==='profit')     loadAndRenderProfit();
+  if(name==='expenses')   renderExpenses();
+}
+
+// ═══════════════════════════════════════════════════════
+//  FAB → context-aware add modal
+// ═══════════════════════════════════════════════════════
+function openAddModal() {
+  const pg = document.querySelector('.page.on')?.id.replace('pg-','');
+  if(pg==='inventory') openInvModal();
+  else if(pg==='clients') openClientModal();
+  else if(pg==='expenses') openExpModal();
+  else openSaleModal();
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════
+async function renderDashboard() {
+  const r = await api('getDashboard');
+  if(!r.ok) return;
+  const d = r.data;
+
+  // Stats
+  const sg = document.getElementById('dash-stats');
+  sg.children[0].querySelector('.stat-val').textContent = fmt(d.totalRevenue);
+  sg.children[1].querySelector('.stat-val').textContent = fmt(d.netProfit);
+  sg.children[2].querySelector('.stat-val').textContent = fmt(d.pending);
+  sg.children[3].querySelector('.stat-val').textContent = fmt(d.collected);
+
+  // Alert
+  const aw = document.getElementById('dash-alert-wrap');
+  aw.innerHTML = '';
+  if(STATE.pendingSummary.length>0) {
+    const total = STATE.pendingSummary.reduce((s,c)=>s+c.totalPending,0);
+    aw.innerHTML = `<div class="alert warn"><div class="alert-icon">⚠️</div><div class="alert-text"><strong>${STATE.pendingSummary.length} client${STATE.pendingSummary.length>1?'s':''} have pending payments</strong>Total outstanding: ${fmt(total)}</div></div>`;
+  }
+
+  // Trend chart
+  const trendData = d.trend||[];
+  const labels = trendData.map(t=>new Date(t.date).toLocaleDateString('en-IN',{weekday:'short'}));
+  const values = trendData.map(t=>t.revenue);
+  destroyChart('dash');
+  const ctx = document.getElementById('chart-dash').getContext('2d');
+  STATE.charts.dash = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        data:values,
+        borderColor:'#ff3f6c',
+        backgroundColor:'rgba(255,63,108,.08)',
+        fill:true,tension:.4,
+        pointBackgroundColor:'#ff3f6c',pointRadius:4,pointHoverRadius:6
+      }]
+    },
+    options:chartOpts('₹')
+  });
+
+  // Top clients
+  const tc = document.getElementById('dash-top-clients');
+  tc.innerHTML = '';
+  if(!d.topClients||!d.topClients.length){tc.innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No sales yet</div></div>';return;}
+  d.topClients.forEach(c=>{
+    tc.innerHTML += `
+      <div class="li">
+        <div class="li-av" style="background:${clientColor(c.clientId)}">${(c.name||'?').slice(0,2).toUpperCase()}</div>
+        <div class="li-info"><div class="li-name">${c.name}</div></div>
+        <div class="li-right"><div class="li-amount">${fmt(c.revenue)}</div></div>
+      </div>`;
+  });
+
+  // Recent sales
+  const rs = document.getElementById('dash-recent-sales');
+  rs.innerHTML='';
+  const recent = [...STATE.sales].slice(0,5);
+  if(!recent.length){rs.innerHTML='<div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">No sales yet</div></div>';return;}
+  recent.forEach(s=>{
+    const cl = STATE.clients.find(c=>c.clientId===s.clientId);
+    const name = cl?.name||s.clientId;
+    rs.innerHTML += saleListItem(s,name);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INVENTORY
+// ═══════════════════════════════════════════════════════
+function renderInventory() {
+  const list = document.getElementById('inv-list');
+  document.getElementById('inv-stat-batches').textContent = STATE.batches.length;
+  const totalStock = STATE.batches.reduce((s,b)=>{
+    return s+(b.items||[]).reduce((ss,it)=>ss+Number(it.qty||0),0);
+  },0);
+  document.getElementById('inv-stat-stock').textContent = totalStock.toLocaleString();
+
+  if(!STATE.batches.length) { list.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">No batches yet</div><div class="empty-sub">Tap + to add your first batch</div></div>'; return; }
+
+  list.innerHTML='';
+  [...STATE.batches].reverse().forEach(b=>{
+    const totalQty=(b.items||[]).reduce((s,it)=>s+Number(it.qty||0),0);
+    let itemsHtml='';
+    (b.items||[]).forEach(it=>{
+      itemsHtml+=`<div class="bottle-cell">
+        <div class="bottle-cell-label">${it.bottleFormat} ${it.bottleSize}</div>
+        <div class="bottle-cell-val">${Number(it.qty||0).toLocaleString()}</div>
+        <div class="bottle-cell-price">₹${Number(it.totalCostPerBottle||0).toFixed(2)}/u</div>
+      </div>`;
+    });
+    list.innerHTML+=`
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${b.batchNo}</div>
+            <div class="card-sub">📅 ${fmtDate(b.purchaseDate)} · By ${b.createdBy||'—'}</div>
+          </div>
+          <span class="badge ${totalQty>0?'bg':'br'}">${totalQty>0?'Active':'Empty'}</span>
+        </div>
+        <div class="bottle-grid">${itemsHtml||'<div style="grid-column:1/-1;color:var(--text2);font-size:12px">No items</div>'}</div>
+        <div class="info-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <span class="info-label">Delivery charge</span>
+          <span class="info-val">${fmt(b.deliveryCharge)} total · ${fmt(b.totalBottles>0?b.deliveryCharge/b.totalBottles:0)}/bottle</span>
+        </div>
+        <div class="info-row"><span class="info-label">Total bottles</span><span class="info-val">${Number(totalQty).toLocaleString()}</span></div>
+        ${b.notes?`<div style="font-size:12px;color:var(--text2);margin-top:6px">${b.notes}</div>`:''}
+        ${STATE.user.role!=='staff'?`<div style="margin-top:10px;display:flex;gap:8px"><button class="btn-secondary" style="flex:1;font-size:12px" onclick="deleteBatch('${b.batchId}')">Delete</button></div>`:''}
+      </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  CLIENTS
+// ═══════════════════════════════════════════════════════
+function renderClients() {
+  const filter = document.querySelector('#client-filter-chips .fc.on')?.dataset.filter||'all';
+  const search = (document.getElementById('client-search')?.value||'').toLowerCase();
+  let list = [...STATE.clients];
+  if(filter==='pending') list=list.filter(c=>STATE.pendingSummary.find(p=>p.clientId===c.clientId));
+  if(search) list=list.filter(c=>c.name.toLowerCase().includes(search)||c.location?.toLowerCase().includes(search));
+  document.getElementById('client-count-label').textContent=list.length+' Clients';
+
+  const el = document.getElementById('client-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No clients yet</div><div class="empty-sub">Tap + to add your first client</div></div>';return;}
+  el.innerHTML='<div class="card">';
+  list.forEach(c=>{
+    const pending = STATE.pendingSummary.find(p=>p.clientId===c.clientId);
+    const salesCount=STATE.sales.filter(s=>s.clientId===c.clientId).length;
+    const av=initials(c.name);
+    el.innerHTML+=`<div class="li" onclick="openClientDetail('${c.clientId}')" style="cursor:pointer">
+      <div class="li-av" style="background:${clientColor(c.clientId)}">${av}</div>
+      <div class="li-info">
+        <div class="li-name">${c.name}</div>
+        <div class="li-sub">📍${c.location||'—'} · ${salesCount} orders</div>
+      </div>
+      <div class="li-right">
+        ${pending?`<span class="badge br">₹${Number(pending.totalPending).toLocaleString()} due</span>`:'<span class="badge bg">Clear</span>'}
+      </div>
+    </div>`;
+  });
+  el.innerHTML+='</div>';
+
+  // Filter chip listeners
+  document.querySelectorAll('#client-filter-chips .fc').forEach(ch=>{
+    ch.onclick=()=>{document.querySelectorAll('#client-filter-chips .fc').forEach(x=>x.classList.remove('on'));ch.classList.add('on');renderClients();};
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SALES
+// ═══════════════════════════════════════════════════════
+function renderSales() {
+  const filter=document.querySelector('#sales-filter-chips .fc.on')?.dataset.val||'';
+  let list=filter?STATE.sales.filter(s=>s.paymentStatus===filter):[...STATE.sales];
+  const totalRev=list.reduce((s,r)=>s+Number(r.totalRevenue||0),0);
+  const totalPend=list.reduce((s,r)=>s+Number(r.amountPending||0),0);
+  document.getElementById('sales-rev').textContent=fmt(totalRev);
+  document.getElementById('sales-pending').textContent=fmt(totalPend);
+  document.getElementById('sales-count-label').textContent=list.length+' Sales';
+
+  // Chart
+  const clientRevs={};
+  list.forEach(s=>{
+    const name=STATE.clients.find(c=>c.clientId===s.clientId)?.name||s.clientId;
+    clientRevs[name]=(clientRevs[name]||0)+Number(s.totalRevenue||0);
+  });
+  const cNames=Object.keys(clientRevs).slice(0,6);
+  const cVals=cNames.map(n=>clientRevs[n]);
+  destroyChart('sales');
+  if(cNames.length) {
+    const ctx=document.getElementById('chart-sales').getContext('2d');
+    STATE.charts.sales=new Chart(ctx,{
+      type:'bar',
+      data:{labels:cNames,datasets:[{data:cVals,backgroundColor:colors.slice(0,cNames.length),borderRadius:8}]},
+      options:chartOpts('₹')
+    });
+  }
+
+  const el=document.getElementById('sales-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">No sales yet</div><div class="empty-sub">Tap + to record a sale</div></div>';return;}
+  el.innerHTML='<div class="card">';
+  list.forEach(s=>{
+    const name=STATE.clients.find(c=>c.clientId===s.clientId)?.name||s.clientId;
+    el.innerHTML+=saleListItem(s,name,true);
+  });
+  el.innerHTML+='</div>';
+
+  document.querySelectorAll('#sales-filter-chips .fc').forEach(ch=>{
+    ch.onclick=()=>{document.querySelectorAll('#sales-filter-chips .fc').forEach(x=>x.classList.remove('on'));ch.classList.add('on');renderSales();};
+  });
+}
+
+function saleListItem(s,name,clickable=false) {
+  const payBadge=s.paymentStatus==='paid'?'<span class="badge bg">Paid</span>':s.paymentStatus==='partial'?'<span class="badge by">Partial</span>':'<span class="badge br">Pending</span>';
+  const click=clickable?`onclick="openSaleDetail('${s.saleId}')" style="cursor:pointer"`:'';
+  return `<div class="li" ${click}>
+    <div class="li-av" style="background:${clientColor(s.clientId)}">${(name||'?').slice(0,2).toUpperCase()}</div>
+    <div class="li-info">
+      <div class="li-name">${name}</div>
+      <div class="li-sub">${fmtDate(s.saleDate)} · Batch #${(s.batchId||'').slice(-6)}</div>
+    </div>
+    <div class="li-right">
+      <div class="li-amount">${fmt(s.totalRevenue)}</div>
+      ${payBadge}
+    </div>
+  </div>`;
+}
+
+function updateSalesBadge() {
+  const pending=STATE.sales.filter(s=>s.paymentStatus!=='paid').length;
+  const b=document.getElementById('sales-badge');
+  b.textContent=pending;
+  b.classList.toggle('hide',pending===0);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAYMENTS
+// ═══════════════════════════════════════════════════════
+function renderPayments() {
+  const total=STATE.pendingSummary.reduce((s,c)=>s+c.totalPending,0);
+  document.getElementById('pay-total-val').textContent=fmt(total);
+  document.getElementById('pay-count-val').textContent=STATE.pendingSummary.length;
+
+  const el=document.getElementById('pay-list');
+  if(!STATE.pendingSummary.length){el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">All payments cleared!</div><div class="empty-sub">No outstanding dues</div></div>';return;}
+  el.innerHTML='';
+  STATE.pendingSummary.forEach(c=>{
+    const maxPend=Math.max(...c.orders.map(o=>o.totalRevenue));
+    const pct=Math.min(100,(c.totalPending/Math.max(c.totalPending+c.orders.reduce((s,o)=>s+Number(o.amountPaid||0),0),1))*100);
+    el.innerHTML+=`<div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="li-av" style="background:${clientColor(c.clientId)}">${(c.clientName||'?').slice(0,2).toUpperCase()}</div>
+        <div style="flex:1">
+          <div class="card-title">${c.clientName}</div>
+          <div class="card-sub">${c.orders.length} orders pending</div>
+          <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${pct>60?'var(--red)':pct>30?'var(--amber)':'var(--green)'}"></div></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--red)">${fmt(c.totalPending)}</div>
+          <button class="btn-sm" style="margin-top:4px" onclick="openPayModal('${c.clientId}')">Collect</button>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:8px">
+        ${c.orders.slice(0,3).map(o=>`
+          <div class="pay-order-row">
+            <span style="color:var(--text2)">Sale · ${fmtDate(o.saleDate)}</span>
+            <div style="text-align:right">
+              <span>${fmt(o.totalRevenue)}</span>
+              <span class="badge ${o.paymentStatus==='pending'?'br':'by'}" style="margin-left:6px">${o.paymentStatus==='partial'?fmt(o.amountPending)+' due':'Pending'}</span>
+            </div>
+          </div>`).join('')}
+        ${c.orders.length>3?`<div style="font-size:11px;color:var(--text3);text-align:center;padding:6px">+${c.orders.length-3} more orders</div>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROFIT
+// ═══════════════════════════════════════════════════════
+async function loadAndRenderProfit() {
+  const groupBy=document.querySelector('#profit-group-chips .fc.on')?.dataset.g||'client';
+  const r=await api('getProfitReport',{groupBy});
+  if(!r.ok){toast('Failed to load profit',true);return;}
+  STATE.profitReport=r;
+
+  const data=r.data||[];
+  const totalRev=data.reduce((s,g)=>s+g.revenue,0);
+  const totalProfit=data.reduce((s,g)=>s+g.profit,0);
+  const avgMargin=totalRev>0?((totalProfit/totalRev)*100).toFixed(1)+'%':'0%';
+  document.getElementById('pr-rev').textContent=fmt(totalRev);
+  document.getElementById('pr-profit').textContent=fmt(totalProfit);
+  document.getElementById('pr-margin').textContent=avgMargin;
+  document.getElementById('pr-expenses').textContent=fmt(r.totalExpenses||0);
+
+  // Chart
+  const labels=data.slice(0,6).map(g=>g.label||g.key);
+  destroyChart('profit');
+  const ctx=document.getElementById('chart-profit').getContext('2d');
+  const tc=isLight?'#60607a':'#9090aa';
+  STATE.charts.profit=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Revenue',data:data.slice(0,6).map(g=>g.revenue),backgroundColor:'rgba(255,63,108,.75)',borderRadius:6},
+        {label:'Profit',data:data.slice(0,6).map(g=>g.profit),backgroundColor:'rgba(0,214,143,.75)',borderRadius:6}
+      ]
+    },
+    options:{...chartOpts('₹'),plugins:{legend:{display:true,position:'bottom',labels:{color:tc,font:{size:11},boxWidth:10}}}}
+  });
+
+  // List
+  const el=document.getElementById('profit-list');
+  el.innerHTML='<div class="card">';
+  data.forEach(g=>{
+    el.innerHTML+=`<div class="li">
+      <div class="li-info">
+        <div class="li-name">${g.label||g.key}</div>
+        <div class="li-sub">Orders: ${g.orders} · Margin: ${g.margin}%</div>
+      </div>
+      <div class="li-right">
+        <div style="font-size:12px;color:var(--text2)">Rev: ${fmt(g.revenue)}</div>
+        <div class="li-amount" style="color:var(--green)">${fmt(g.profit)}</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML+='</div>';
+
+  document.querySelectorAll('#profit-group-chips .fc').forEach(ch=>{
+    ch.onclick=()=>{document.querySelectorAll('#profit-group-chips .fc').forEach(x=>x.classList.remove('on'));ch.classList.add('on');loadAndRenderProfit();};
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPENSES
+// ═══════════════════════════════════════════════════════
+function renderExpenses() {
+  const thisMonth=new Date().toISOString().slice(0,7);
+  const monthExp=STATE.expenses.filter(e=>e.expenseDate?.startsWith(thisMonth));
+  const monthTotal=monthExp.reduce((s,e)=>s+Number(e.amount||0),0);
+  const grandTotal=STATE.expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  document.getElementById('exp-month').textContent=fmt(monthTotal);
+  document.getElementById('exp-total').textContent=fmt(grandTotal);
+
+  // Donut chart
+  const catTotals={};
+  STATE.expenses.forEach(e=>{ catTotals[e.category]=(catTotals[e.category]||0)+Number(e.amount||0); });
+  const cats=Object.keys(catTotals);
+  destroyChart('expense');
+  if(cats.length){
+    const ctx=document.getElementById('chart-expense').getContext('2d');
+    const tc=isLight?'#60607a':'#9090aa';
+    STATE.charts.expense=new Chart(ctx,{
+      type:'doughnut',
+      data:{labels:cats,datasets:[{data:cats.map(c=>catTotals[c]),backgroundColor:colors.slice(0,cats.length),borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tc,font:{size:10},boxWidth:10}}}}
+    });
+  }
+
+  const el=document.getElementById('exp-list');
+  if(!STATE.expenses.length){el.innerHTML='<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No expenses yet</div><div class="empty-sub">Tap + to add expense</div></div>';return;}
+  el.innerHTML='<div class="card">';
+  STATE.expenses.forEach(e=>{
+    const icons={Vehicle:'🛵',Salary:'💼',Utilities:'💡',Packaging:'📦',Maintenance:'🔧',Other:'📌'};
+    el.innerHTML+=`<div class="li" onclick="openEditExp('${e.expenseId}')" style="cursor:pointer">
+      <div class="li-av" style="background:var(--amber)">${icons[e.category]||'💸'}</div>
+      <div class="li-info">
+        <div class="li-name">${e.reason||e.category}</div>
+        <div class="li-sub">${e.category} · ${fmtDate(e.expenseDate)} · By ${e.createdBy}</div>
+      </div>
+      <div class="li-right"><div class="li-amount" style="color:var(--red)">${fmt(e.amount)}</div></div>
+    </div>`;
+  });
+  el.innerHTML+='</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADD / SUBMIT — SALE
+// ═══════════════════════════════════════════════════════
+function openSaleModal(editId=null) {
+  STATE.editingSaleId=editId;
+  document.getElementById('sale-modal-title').textContent=editId?'Edit Sale Payment':'New Sale';
+  // Populate clients
+  const sel=document.getElementById('sale-client');
+  sel.innerHTML='<option value="">— Select client —</option>';
+  STATE.clients.forEach(c=>sel.innerHTML+=`<option value="${c.clientId}">${c.name}</option>`);
+  // Populate batches
+  const bsel=document.getElementById('sale-batch');
+  bsel.innerHTML='<option value="">— Batch —</option>';
+  STATE.batches.forEach(b=>bsel.innerHTML+=`<option value="${b.batchId}">${b.batchNo}</option>`);
+  document.getElementById('sale-date').value=today();
+  document.getElementById('sale-ts').textContent=new Date().toLocaleString('en-IN');
+  document.getElementById('sale-enterer').textContent=STATE.user.name;
+  document.getElementById('sale-bottle-rows').innerHTML='<div class="empty" style="padding:20px"><div class="empty-text" style="font-size:13px">Select a client first</div></div>';
+  openModal('modal-sale');
+}
+
+function loadSaleClientPrices() {
+  const clientId=document.getElementById('sale-client').value;
+  const client=STATE.clients.find(c=>c.clientId===clientId);
+  if(!client||!client.currentPrices||!client.currentPrices.length) {
+    document.getElementById('sale-bottle-rows').innerHTML='<div class="empty" style="padding:16px"><div class="empty-text" style="font-size:12px">No prices set for this client</div></div>';
+    return;
+  }
+  let html='';
+  client.currentPrices.forEach(p=>{
+    html+=`<div class="bottle-input-row">
+      <span class="bottle-input-label">${p.bottleFormat} ${p.bottleSize}</span>
+      <span class="bottle-input-price">₹${p.sellingPrice}/unit</span>
+      <input class="bottle-qty-input" type="number" min="0" placeholder="0" data-format="${p.bottleFormat}" data-size="${p.bottleSize}" value="0"/>
+    </div>`;
+  });
+  document.getElementById('sale-bottle-rows').innerHTML=html;
+}
+
+function togglePaidField() {
+  const v=document.getElementById('sale-pay-status').value;
+  document.getElementById('paid-field').classList.toggle('hide',v==='paid');
+}
+
+async function submitSale() {
+  const clientId=document.getElementById('sale-client').value;
+  const batchId=document.getElementById('sale-batch').value;
+  const saleDate=document.getElementById('sale-date').value;
+  if(!clientId||!batchId||!saleDate){toast('Please fill all required fields',true);return;}
+
+  const items=[];
+  document.querySelectorAll('#sale-bottle-rows .bottle-qty-input').forEach(inp=>{
+    const qty=Number(inp.value||0);
+    if(qty>0) items.push({bottleFormat:inp.dataset.format,bottleSize:inp.dataset.size,qty});
+  });
+  if(!items.length){toast('Enter at least one bottle quantity',true);return;}
+
+  const payStatus=document.getElementById('sale-pay-status').value;
+  const amountPaid=payStatus==='paid'?null:Number(document.getElementById('sale-paid-amount').value||0);
+
+  const btn=document.querySelector('#modal-sale .btn-primary');
+  btn.textContent='Saving…';btn.disabled=true;
+
+  const r=await api('saveSale',{
+    clientId,batchId,saleDate,items,
+    paymentStatus:payStatus,
+    amountPaid,
+    notes:document.getElementById('sale-notes').value,
+    user:STATE.user.name
+  });
+  btn.textContent='Save Sale';btn.disabled=false;
+
+  if(r.ok){
+    closeModal('modal-sale');
+    toast('Sale saved! Revenue: '+fmt(r.totalRevenue));
+    await loadAll();
+    renderSales();
+  } else {
+    toast(r.error||'Failed to save',true);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADD / SUBMIT — INVENTORY
+// ═══════════════════════════════════════════════════════
+function openInvModal() {
+  document.getElementById('inv-date').value=today();
+  document.getElementById('inv-delivery').value='';
+  document.getElementById('inv-notes').value='';
+  buildInvBottleRows();
+  openModal('modal-inventory');
+}
+
+function buildInvBottleRows() {
+  const formats=STATE.settings.bottleFormats||['Square','Premium'];
+  const sizes=STATE.settings.bottleSizes||['1L','500ml','250ml'];
+  let html='';
+  formats.forEach(f=>sizes.forEach(s=>{
+    html+=`<div class="bottle-input-row">
+      <span class="bottle-input-label">${f} ${s}</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="bottle-qty-input" type="number" min="0" placeholder="Qty" data-format="${f}" data-size="${s}" style="width:60px" oninput="recalcDelivery()"/>
+        <span style="font-size:11px;color:var(--text2)">@</span>
+        <input class="bottle-qty-input" type="number" min="0" placeholder="₹Cost" data-cost="1" data-format="${f}" data-size="${s}" style="width:65px"/>
+      </div>
+    </div>`;
+  }));
+  document.getElementById('inv-bottle-rows').innerHTML=html;
+}
+
+function recalcDelivery() {
+  const delivery=Number(document.getElementById('inv-delivery').value||0);
+  const qtyInputs=document.querySelectorAll('#inv-bottle-rows .bottle-qty-input:not([data-cost])');
+  const totalQty=Array.from(qtyInputs).reduce((s,i)=>s+Number(i.value||0),0);
+  const perBottle=totalQty>0?(delivery/totalQty).toFixed(2):0;
+  document.getElementById('inv-delivery-preview').textContent=totalQty>0?`Delivery per bottle: ₹${perBottle} (${totalQty} total bottles)`:'Enter quantities to see delivery per bottle';
+}
+
+async function submitBatch() {
+  const batchNo=document.getElementById('inv-batch-no').value.trim();
+  const purchaseDate=document.getElementById('inv-date').value;
+  const deliveryCharge=Number(document.getElementById('inv-delivery').value||0);
+  if(!batchNo||!purchaseDate){toast('Fill batch number and date',true);return;}
+
+  const items=[];
+  const qtyInputs=document.querySelectorAll('#inv-bottle-rows .bottle-qty-input:not([data-cost])');
+  qtyInputs.forEach(inp=>{
+    const qty=Number(inp.value||0);
+    if(qty<=0)return;
+    const costInp=document.querySelector(`#inv-bottle-rows input[data-cost][data-format="${inp.dataset.format}"][data-size="${inp.dataset.size}"]`);
+    items.push({bottleFormat:inp.dataset.format,bottleSize:inp.dataset.size,qty,costPerBottle:Number(costInp?.value||0)});
+  });
+  if(!items.length){toast('Add at least one bottle type with quantity',true);return;}
+
+  const btn=document.querySelector('#modal-inventory .btn-primary');
+  btn.textContent='Saving…';btn.disabled=true;
+  const r=await api('saveBatch',{batchNo,purchaseDate,deliveryCharge,items,notes:document.getElementById('inv-notes').value,user:STATE.user.name});
+  btn.textContent='Save Batch';btn.disabled=false;
+  if(r.ok){closeModal('modal-inventory');toast('Batch saved!');await loadAll();renderInventory();}
+  else toast(r.error||'Failed',true);
+}
+
+async function deleteBatch(batchId) {
+  if(!confirm('Delete this batch? This cannot be undone.'))return;
+  const r=await api('deleteBatch',{batchId,user:STATE.user.name});
+  if(r.ok){toast('Batch deleted');await loadAll();renderInventory();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADD / SUBMIT — CLIENTS
+// ═══════════════════════════════════════════════════════
+function openClientModal(editId=null) {
+  STATE.editingClientId=editId;
+  document.getElementById('client-modal-title').textContent=editId?'Edit Client':'New Client';
+  document.getElementById('cli-name').value='';
+  document.getElementById('cli-location').value='';
+  document.getElementById('cli-phone').value='';
+  document.getElementById('cli-email').value='';
+  document.getElementById('cli-notes').value='';
+  if(editId){
+    const c=STATE.clients.find(x=>x.clientId===editId);
+    if(c){document.getElementById('cli-name').value=c.name;document.getElementById('cli-location').value=c.location||'';document.getElementById('cli-phone').value=c.phone||'';document.getElementById('cli-email').value=c.email||'';document.getElementById('cli-notes').value=c.notes||'';}
+  }
+  buildClientPriceRows(editId);
+  closeModal('modal-client-detail');
+  openModal('modal-client');
+}
+
+function buildClientPriceRows(editId=null) {
+  const formats=STATE.settings.bottleFormats||['Square','Premium'];
+  const sizes=STATE.settings.bottleSizes||['1L','500ml','250ml'];
+  const existing=editId?STATE.clients.find(c=>c.clientId===editId)?.currentPrices||[]:[];
+  let html='';
+  formats.forEach(f=>sizes.forEach(s=>{
+    const ep=existing.find(p=>p.bottleFormat===f&&p.bottleSize===s);
+    html+=`<div class="bottle-input-row">
+      <span class="bottle-input-label">${f} ${s}</span>
+      <input class="bottle-qty-input" type="number" min="0" placeholder="₹" data-format="${f}" data-size="${s}" value="${ep?ep.sellingPrice:''}" style="width:80px"/>
+    </div>`;
+  }));
+  document.getElementById('cli-price-rows').innerHTML=html;
+}
+
+async function submitClient() {
+  const name=document.getElementById('cli-name').value.trim();
+  if(!name){toast('Enter client name',true);return;}
+  const prices=[];
+  document.querySelectorAll('#cli-price-rows .bottle-qty-input').forEach(inp=>{
+    if(Number(inp.value)>0)prices.push({bottleFormat:inp.dataset.format,bottleSize:inp.dataset.size,sellingPrice:Number(inp.value)});
+  });
+  const btn=document.querySelector('#modal-client .btn-primary');
+  btn.textContent='Saving…';btn.disabled=true;
+  let r;
+  if(STATE.editingClientId){
+    r=await api('updateClient',{clientId:STATE.editingClientId,name,location:document.getElementById('cli-location').value,phone:document.getElementById('cli-phone').value,email:document.getElementById('cli-email').value,notes:document.getElementById('cli-notes').value,user:STATE.user.name});
+  } else {
+    r=await api('saveClient',{name,location:document.getElementById('cli-location').value,phone:document.getElementById('cli-phone').value,email:document.getElementById('cli-email').value,notes:document.getElementById('cli-notes').value,prices,user:STATE.user.name});
+  }
+  btn.textContent='Save Client';btn.disabled=false;
+  if(r.ok){closeModal('modal-client');toast('Client saved!');await loadAll();renderClients();}
+  else toast(r.error||'Failed',true);
+}
+
+// CLIENT DETAIL
+function openClientDetail(clientId) {
+  const c=STATE.clients.find(x=>x.clientId===clientId);
+  if(!c)return;
+  STATE.editingClientId=clientId;
+  document.getElementById('cdet-av').textContent=initials(c.name);
+  document.getElementById('cdet-av').style.background=clientColor(clientId);
+  document.getElementById('cdet-name').textContent=c.name;
+  document.getElementById('cdet-sub').textContent=`📍${c.location||'—'} · 📞${c.phone||'—'}`;
+
+  // Current prices
+  let ph='';
+  (c.currentPrices||[]).forEach(p=>{ph+=`<div class="info-row"><span class="info-label">${p.bottleFormat} ${p.bottleSize}</span><span class="info-val">₹${p.sellingPrice}/unit</span></div>`;});
+  document.getElementById('cdet-prices').innerHTML=ph||'<div style="color:var(--text3);font-size:13px">No prices set</div>';
+
+  // Price history
+  let hist='';
+  (c.priceHistory||[]).slice(0,5).forEach(p=>{hist+=`<div class="price-hist-row"><span style="color:var(--text2)">${p.bottleFormat} ${p.bottleSize}</span><span>₹${p.sellingPrice} <span style="color:var(--text3);font-size:10px">until ${fmtDate(p.supersededAt)}</span></span></div>`;});
+  document.getElementById('cdet-price-hist').innerHTML=hist||'<div style="color:var(--text3);font-size:13px">No price changes yet</div>';
+
+  // Bottle selector for price update
+  const formats=STATE.settings.bottleFormats||['Square','Premium'];
+  const sizes=STATE.settings.bottleSizes||['1L','500ml','250ml'];
+  let opts='';
+  formats.forEach(f=>sizes.forEach(s=>opts+=`<option value="${f}|${s}">${f} ${s}</option>`));
+  document.getElementById('cdet-bottle-sel').innerHTML=opts;
+  document.getElementById('cdet-new-price').value='';
+
+  openModal('modal-client-detail');
+}
+
+async function submitPriceUpdate() {
+  const val=document.getElementById('cdet-bottle-sel').value.split('|');
+  const price=Number(document.getElementById('cdet-new-price').value);
+  if(!price){toast('Enter new price',true);return;}
+  const r=await api('updateClientPrice',{clientId:STATE.editingClientId,bottleFormat:val[0],bottleSize:val[1],newPrice:price,user:STATE.user.name});
+  if(r.ok){toast('Price updated!');await loadAll();openClientDetail(STATE.editingClientId);}
+  else toast(r.error||'Failed',true);
+}
+
+function openEditClientModal(){openClientModal(STATE.editingClientId);}
+
+async function deleteClient() {
+  if(!confirm('Delete this client?'))return;
+  const r=await api('deleteClient',{clientId:STATE.editingClientId,user:STATE.user.name});
+  if(r.ok){closeModal('modal-client-detail');toast('Client deleted');await loadAll();renderClients();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SALE DETAIL
+// ═══════════════════════════════════════════════════════
+function openSaleDetail(saleId) {
+  const s=STATE.sales.find(x=>x.saleId===saleId);
+  if(!s)return;
+  STATE.editingSaleId=saleId;
+  const cl=STATE.clients.find(c=>c.clientId===s.clientId);
+  const bt=STATE.batches.find(b=>b.batchId===s.batchId);
+  const payBadge=s.paymentStatus==='paid'?'<span class="badge bg">Paid</span>':s.paymentStatus==='partial'?'<span class="badge by">Partial</span>':'<span class="badge br">Pending</span>';
+  let html=`
+    <div class="info-row"><span class="info-label">Client</span><span class="info-val">${cl?.name||s.clientId}</span></div>
+    <div class="info-row"><span class="info-label">Sale Date</span><span class="info-val">${fmtDate(s.saleDate)}</span></div>
+    <div class="info-row"><span class="info-label">Batch</span><span class="info-val">${bt?.batchNo||s.batchId}</span></div>
+    <div class="info-row"><span class="info-label">Total Revenue</span><span class="info-val">${fmt(s.totalRevenue)}</span></div>
+    <div class="info-row"><span class="info-label">Total Profit</span><span class="info-val" style="color:var(--green)">${fmt(s.totalProfit)}</span></div>
+    <div class="info-row"><span class="info-label">Payment</span><span class="info-val">${payBadge} ${fmt(s.amountPaid)} paid</span></div>
+    <div class="info-row"><span class="info-label">Pending</span><span class="info-val" style="color:var(--red)">${fmt(s.amountPending)}</span></div>
+    <div class="info-row"><span class="info-label">Entered by</span><span class="info-val">${s.createdBy}</span></div>
+    <div class="info-row"><span class="info-label">Entry time</span><span class="info-val">${fmtDate(s.createdAt)}</span></div>
+    ${s.modifiedBy?`<div class="info-row"><span class="info-label">Last edited</span><span class="info-val">${s.modifiedBy} · ${fmtDate(s.modifiedAt)}</span></div>`:''}
+  `;
+  document.getElementById('sale-detail-content').innerHTML=html;
+  openModal('modal-sale-detail');
+}
+
+function openEditSalePayment() {
+  // Simple inline edit for payment status
+  const s=STATE.sales.find(x=>x.saleId===STATE.editingSaleId);
+  if(!s)return;
+  closeModal('modal-sale-detail');
+  const newStatus=prompt(`Update payment status for this sale.\nCurrent: ${s.paymentStatus}\nEnter: paid / partial / pending`);
+  if(!newStatus)return;
+  let amountPaid=s.amountPaid;
+  if(newStatus==='partial'){ const amt=prompt('Amount paid (₹)?'); if(!amt)return; amountPaid=Number(amt); }
+  api('updateSale',{saleId:STATE.editingSaleId,paymentStatus:newStatus,amountPaid,user:STATE.user.name}).then(r=>{
+    if(r.ok){toast('Payment updated!');loadAll().then(renderSales);}
+    else toast(r.error||'Failed',true);
+  });
+}
+
+async function deleteSale() {
+  if(!confirm('Delete this sale?'))return;
+  const r=await api('deleteSale',{saleId:STATE.editingSaleId,user:STATE.user.name});
+  if(r.ok){closeModal('modal-sale-detail');toast('Sale deleted');await loadAll();renderSales();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAYMENTS MODAL
+// ═══════════════════════════════════════════════════════
+function openPayModal(clientId) {
+  const summary=STATE.pendingSummary.find(c=>c.clientId===clientId);
+  if(!summary)return;
+  STATE.payingClientId=clientId;
+  STATE.payingOrders=summary.orders;
+  const cl=STATE.clients.find(c=>c.clientId===clientId);
+  document.getElementById('pay-modal-client').textContent='Collect — '+(cl?.name||clientId);
+  document.getElementById('pay-total-outstanding').textContent=fmt(summary.totalPending);
+  document.getElementById('pay-order-count').textContent=summary.orders.length+' orders';
+  document.getElementById('pay-amount').value='';
+  document.getElementById('pay-date').value=today();
+  document.getElementById('pay-notes').value='';
+  document.getElementById('pay-preview').classList.add('hide');
+  openModal('modal-payment');
+}
+
+function previewPayment() {
+  let amt=Number(document.getElementById('pay-amount').value||0);
+  if(amt<=0){document.getElementById('pay-preview').classList.add('hide');return;}
+  document.getElementById('pay-preview').classList.remove('hide');
+  let remaining=amt;
+  let html='';
+  STATE.payingOrders.forEach(o=>{
+    const pending=Number(o.amountPending||0);
+    if(pending<=0)return;
+    if(remaining>=pending){
+      html+=`<div class="pay-order-row"><span style="color:var(--text2)">${fmtDate(o.saleDate)} (${fmt(o.totalRevenue)})</span><span class="badge bg">Fully Paid</span></div>`;
+      remaining-=pending;
+    } else if(remaining>0){
+      html+=`<div class="pay-order-row"><span style="color:var(--text2)">${fmtDate(o.saleDate)} (${fmt(o.totalRevenue)})</span><span class="badge by">${fmt(remaining)} paid · ${fmt(pending-remaining)} due</span></div>`;
+      remaining=0;
+    } else {
+      html+=`<div class="pay-order-row"><span style="color:var(--text3)">${fmtDate(o.saleDate)} (${fmt(o.totalRevenue)})</span><span class="badge br">Pending</span></div>`;
+    }
+  });
+  const totalPending=STATE.payingOrders.reduce((s,o)=>s+Number(o.amountPending||0),0);
+  document.getElementById('pay-preview-rows').innerHTML=html;
+  document.getElementById('pay-still-pending').textContent=fmt(Math.max(0,totalPending-amt));
+}
+
+async function submitPayment() {
+  const amt=Number(document.getElementById('pay-amount').value||0);
+  const date=document.getElementById('pay-date').value;
+  if(!amt||!date){toast('Enter amount and date',true);return;}
+  const btn=document.querySelector('#modal-payment .btn-primary');
+  btn.textContent='Saving…';btn.disabled=true;
+  const r=await api('recordPayment',{clientId:STATE.payingClientId,paymentDate:date,amountReceived:amt,notes:document.getElementById('pay-notes').value,user:STATE.user.name});
+  btn.textContent='Confirm Payment';btn.disabled=false;
+  if(r.ok){closeModal('modal-payment');toast('Payment recorded!');await loadAll();renderPayments();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPENSES MODAL
+// ═══════════════════════════════════════════════════════
+function openExpModal(editId=null) {
+  STATE.editingExpId=editId;
+  document.getElementById('exp-modal-title').textContent=editId?'Edit Expense':'New Expense';
+  document.getElementById('exp-date').value=today();
+  document.getElementById('exp-amount').value='';
+  document.getElementById('exp-reason').value='';
+  // Populate categories from settings
+  const cats=STATE.settings.expenseCategories||['Vehicle','Salary','Utilities','Packaging','Maintenance','Other'];
+  const sel=document.getElementById('exp-category');
+  sel.innerHTML=cats.map(c=>`<option>${c}</option>`).join('');
+  if(editId){
+    const e=STATE.expenses.find(x=>x.expenseId===editId);
+    if(e){document.getElementById('exp-date').value=e.expenseDate||today();document.getElementById('exp-amount').value=e.amount;document.getElementById('exp-reason').value=e.reason||'';sel.value=e.category;}
+  }
+  openModal('modal-expense');
+}
+
+function openEditExp(expId){openExpModal(expId);}
+
+async function submitExpense() {
+  const date=document.getElementById('exp-date').value;
+  const amount=Number(document.getElementById('exp-amount').value||0);
+  const reason=document.getElementById('exp-reason').value.trim();
+  if(!date||!amount||!reason){toast('Fill all fields',true);return;}
+  const btn=document.querySelector('#modal-expense .btn-primary');
+  btn.textContent='Saving…';btn.disabled=true;
+  let r;
+  if(STATE.editingExpId){
+    r=await api('updateExpense',{expenseId:STATE.editingExpId,expenseDate:date,amount,category:document.getElementById('exp-category').value,reason,user:STATE.user.name});
+  } else {
+    r=await api('saveExpense',{expenseDate:date,amount,category:document.getElementById('exp-category').value,reason,user:STATE.user.name});
+  }
+  btn.textContent='Save Expense';btn.disabled=false;
+  if(r.ok){closeModal('modal-expense');toast('Expense saved!');STATE.expenses=[];await loadAll();renderExpenses();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS MODAL
+// ═══════════════════════════════════════════════════════
+function openSettingsModal() {
+  renderSettingsList('bottleFormats','settings-formats');
+  renderSettingsList('bottleSizes','settings-sizes');
+  renderSettingsList('costComponents','settings-costs');
+  renderSettingsList('expenseCategories','settings-expcats');
+  openModal('modal-settings');
+}
+
+function renderSettingsList(key,elId) {
+  const items=STATE.settings[key]||[];
+  const el=document.getElementById(elId);
+  el.innerHTML=items.map((it,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <span style="flex:1;font-size:13px;color:var(--text)">${it}</span>
+    <button class="btn-danger" style="padding:4px 8px;font-size:11px" onclick="removeSettingItem('${key}',${i},'${elId}')">✕</button>
+  </div>`).join('');
+}
+
+async function addSettingItem(key,inputId,elId) {
+  const val=document.getElementById(inputId).value.trim();
+  if(!val)return;
+  const items=[...(STATE.settings[key]||[]),val];
+  const r=await api('saveSettings',{key,value:items,user:STATE.user.name});
+  if(r.ok){STATE.settings[key]=items;document.getElementById(inputId).value='';renderSettingsList(key,elId);toast('Added!');}
+  else toast(r.error||'Failed',true);
+}
+
+async function removeSettingItem(key,idx,elId) {
+  const items=(STATE.settings[key]||[]).filter((_,i)=>i!==idx);
+  const r=await api('saveSettings',{key,value:items,user:STATE.user.name});
+  if(r.ok){STATE.settings[key]=items;renderSettingsList(key,elId);toast('Removed');}
+}
+
+// ═══════════════════════════════════════════════════════
+//  USERS MODAL
+// ═══════════════════════════════════════════════════════
+async function openUsersModal() {
+  await loadUsers();
+  const el=document.getElementById('users-list');
+  el.innerHTML='';
+  STATE.users.forEach(u=>{
+    el.innerHTML+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="user-av" style="background:${u.color||'#ff3f6c'};width:36px;height:36px">${u.initials||initials(u.name)}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;color:var(--text)">${u.name}</div>
+        <span class="role-tag role-${u.role}">${u.role}</span>
+      </div>
+      ${u.userId!==STATE.user.userId?`<button class="btn-danger" style="font-size:11px;padding:4px 10px" onclick="deactivateUser('${u.userId}','${u.name}')">Remove</button>`:'<span style="font-size:11px;color:var(--text3)">You</span>'}
+    </div>`;
+  });
+  openModal('modal-users');
+}
+
+async function submitNewUser() {
+  const name=document.getElementById('new-user-name').value.trim();
+  const ini=document.getElementById('new-user-initials').value.trim().toUpperCase();
+  const role=document.getElementById('new-user-role').value;
+  const pin=document.getElementById('new-user-pin').value;
+  if(!name||!ini||pin.length!==4){toast('Fill all fields. PIN must be 4 digits.',true);return;}
+  const r=await api('saveUser',{name,initials:ini,role,pin,color:colors[Math.floor(Math.random()*colors.length)],requestedBy:STATE.user.name});
+  if(r.ok){toast('User added!');document.getElementById('new-user-name').value='';document.getElementById('new-user-pin').value='';await openUsersModal();}
+  else toast(r.error||'Failed',true);
+}
+
+async function deactivateUser(userId,name) {
+  if(!confirm(`Remove ${name} from the app?`))return;
+  const r=await api('deleteUser',{userId,requestedBy:STATE.user.name});
+  if(r.ok){toast('User removed');await openUsersModal();}
+  else toast(r.error||'Failed',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUDIT MODAL
+// ═══════════════════════════════════════════════════════
+async function openAuditModal() {
+  openModal('modal-audit');
+  await loadAuditPage('');
+  document.querySelectorAll('#audit-chips .fc').forEach(ch=>{
+    ch.onclick=async()=>{document.querySelectorAll('#audit-chips .fc').forEach(x=>x.classList.remove('on'));ch.classList.add('on');await loadAuditPage(ch.dataset.sh);};
+  });
+}
+
+async function loadAuditPage(sheetFilter) {
+  const el=document.getElementById('audit-list');
+  el.innerHTML='<div class="skel" style="height:50px;margin-bottom:8px"></div><div class="skel" style="height:50px"></div>';
+  const r=await api('getAuditLog',{sheet:sheetFilter||undefined,limit:50});
+  if(!r.ok){el.innerHTML='<div class="empty"><div class="empty-text">Failed to load</div></div>';return;}
+  if(!r.data.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No audit records yet</div></div>';return;}
+  el.innerHTML='';
+  r.data.forEach(row=>{
+    const actionClass={CREATE:'audit-create',UPDATE:'audit-update',DELETE:'audit-delete'}[row.action]||'audit-update';
+    el.innerHTML+=`<div class="audit-row">
+      <span class="audit-action ${actionClass}">${row.action}</span>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${row.sheet} · <span style="color:var(--text2);font-weight:400">${row.user}</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${new Date(row.timestamp).toLocaleString('en-IN')} · Record: ${(row.recordId||'').slice(-8)}</div>
+      ${row.oldValue&&row.oldValue!==''?`<div style="font-size:11px;color:var(--text3);margin-top:2px">Before: ${String(row.oldValue).slice(0,80)}</div>`:''}
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGO MODAL
+// ═══════════════════════════════════════════════════════
+let pendingLogoDataUrl=null;
+function openLogoModal() {
+  const saved=localStorage.getItem('zippit-logo');
+  if(saved){
+    document.getElementById('logo-preview-text').style.display='none';
+    document.getElementById('logo-preview-img').style.display='block';
+    document.getElementById('logo-preview-img').src=saved;
+  } else {
+    document.getElementById('logo-preview-text').style.display='block';
+    document.getElementById('logo-preview-img').style.display='none';
+  }
+  openModal('modal-logo');
+}
+
+function previewLogo(e) {
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    pendingLogoDataUrl=ev.target.result;
+    document.getElementById('logo-preview-text').style.display='none';
+    document.getElementById('logo-preview-img').style.display='block';
+    document.getElementById('logo-preview-img').src=pendingLogoDataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveLogo() {
+  if(!pendingLogoDataUrl){toast('Choose an image first',true);return;}
+  localStorage.setItem('zippit-logo',pendingLogoDataUrl);
+  applyLogo(pendingLogoDataUrl);
+  closeModal('modal-logo');
+  toast('Logo saved!');
+}
+
+function removeLogo() {
+  localStorage.removeItem('zippit-logo');
+  pendingLogoDataUrl=null;
+  applyLogo(null);
+  closeModal('modal-logo');
+  toast('Logo removed');
+}
+
+function applyLogo(dataUrl) {
+  const text1=document.getElementById('tb-logo-text');
+  const img1=document.getElementById('tb-logo-img');
+  if(dataUrl){
+    text1.style.display='none';img1.style.display='block';img1.src=dataUrl;
+  } else {
+    text1.style.display='block';img1.style.display='none';
+  }
+  // Also update login logo if present
+  const loginLogo=document.querySelector('.login-logo-z');
+  if(loginLogo) loginLogo.textContent='Z';
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════════════════
+function chartOpts(prefix='') {
+  const tc=isLight?'#60607a':'#9090aa';
+  const gc=isLight?'rgba(0,0,0,.06)':'rgba(255,255,255,.05)';
+  return {
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:tc,font:{size:10,family:'DM Sans'}},grid:{display:false}},
+      y:{ticks:{color:tc,font:{size:10,family:'DM Sans'},callback:v=>prefix+(v>=1000?(v/1000).toFixed(0)+'K':v)},grid:{color:gc}}
+    }
+  };
+}
+
+function destroyChart(key) {
+  if(STATE.charts[key]){STATE.charts[key].destroy();delete STATE.charts[key];}
+}
+
+function redrawCharts() {
+  // Charts will re-render on next page visit
+  Object.keys(STATE.charts).forEach(k=>destroyChart(k));
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGOUT
+// ═══════════════════════════════════════════════════════
+function logout() {
+  STATE.user=null;STATE.selectedUser=null;
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login').style.display='';
+  document.getElementById('login').classList.remove('out');
+  document.getElementById('step-user').classList.remove('hide');
+  document.getElementById('step-pin').classList.add('hide');
+  document.getElementById('ls2').classList.remove('on');
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('sel'));
+  pinBuf='';
+  // Reset charts
+  Object.values(STATE.charts).forEach(c=>c.destroy());
+  STATE.charts={};
+}
+</script>
+</body>
+</html>
