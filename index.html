@@ -233,7 +233,7 @@ body{font-family:var(--ff-body);background:var(--bg);color:var(--text);min-heigh
 .modal-title{font-family:var(--ff-head);font-size:18px;font-weight:800;color:var(--text);margin-bottom:18px}
 
 /* TOAST */
-#toast{display:none;position:fixed;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:10px 16px;font-size:13px;font-weight:600;color:var(--text);z-index:999;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px}
+#toast{position:fixed;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:10px 16px;font-size:13px;font-weight:600;color:var(--text);z-index:999;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* PAYMENT MODAL specific */
@@ -342,8 +342,8 @@ body{font-family:var(--ff-body);background:var(--bg);color:var(--text);min-heigh
   </div>
 </div>
 
-  <!-- TOAST -->
-<div id="toast">✓ <span id="toast-msg">Saved</span></div>
+<!-- TOAST -->
+<div id="toast" style="opacity:0;pointer-events:none">✓ <span id="toast-msg"></span></div>
 
 <!-- APP -->
 <div id="app">
@@ -955,25 +955,34 @@ const clientColor = id => colors[Math.abs(simpleHash(id||'x')) % colors.length];
 function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
 
 async function api(action, body={}) {
+  // Google Apps Script requires GET requests - POST triggers a CORS redirect
   try {
-    const res = await fetch(API, {
-      method:'POST',
-      body: JSON.stringify({action,...body}),
-    });
-    return await res.json();
+    const params = new URLSearchParams();
+    params.set('action', action);
+    // Serialize complex body as a single 'data' param
+    if(Object.keys(body).length > 0) params.set('data', JSON.stringify(body));
+    const url = API + '?' + params.toString();
+    const res = await fetch(url, { method:'GET', redirect:'follow' });
+    const text = await res.text();
+    // Strip any JSONP wrapper GAS might add
+    const json = text.trim().replace(/^[^{\[]*/, '').replace(/[^}\]]*$/, '');
+    return JSON.parse(json || '{"ok":false,"error":"Empty response"}');
   } catch(e) {
-    return {ok:false, error:e.message};
+    return {ok:false, error:'Network error: ' + e.message};
   }
 }
 
 function toast(msg, isErr=false) {
+  if(!msg) return;
   const t = document.getElementById('toast');
   const m = document.getElementById('toast-msg');
   m.textContent = msg;
+  t.style.opacity = '1';
+  t.style.pointerEvents = 'auto';
   t.style.background = isErr ? 'var(--red-dim)' : 'var(--surface)';
   t.style.color = isErr ? 'var(--red)' : 'var(--text)';
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  setTimeout(()=>{ t.classList.remove('show'); t.style.opacity=''; t.style.pointerEvents=''; }, 2800);
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
@@ -998,25 +1007,43 @@ function toggleTheme() {
 //  SPLASH → LOGIN
 // ═══════════════════════════════════════════════════════
 window.onload = async () => {
-  // Theme
-  if(localStorage.getItem('zippit-theme')==='light') toggleTheme();
-  // Logo
+  // Theme (silent - no toast)
+  const savedTheme = localStorage.getItem('zippit-theme');
+  if(savedTheme === 'light') {
+    isLight = true;
+    document.body.classList.add('light');
+    document.getElementById('theme-btn').textContent = '🌙';
+  }
+  // Logo (silent - no toast)
   const savedLogo = localStorage.getItem('zippit-logo');
-  if(savedLogo) applyLogo(savedLogo);
+  if(savedLogo) applyLogoSilent(savedLogo);
 
+  // Splash animation
   await new Promise(r=>setTimeout(r,2200));
   document.getElementById('splash').style.opacity='0';
   document.getElementById('splash').style.transition='opacity .5s';
   setTimeout(()=>document.getElementById('splash').style.display='none',600);
-  await loadUsers();
+  
   buildNumpad();
+  await loadUsers();
 };
 
 async function loadUsers() {
+  const grid = document.getElementById('user-grid');
+  // Show loading state
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text2);font-size:13px">Connecting to server...</div>';
+  
   const r = await api('getUsers');
-  if(r.ok) {
+  if(r.ok && r.data && r.data.length) {
     STATE.users = r.data.filter(u=>u.active==='TRUE'||u.active===true);
     buildUserGrid();
+  } else {
+    // Show error with retry
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px">
+      <div style="color:var(--red);font-size:13px;margin-bottom:12px">⚠️ Could not load users</div>
+      <div style="color:var(--text3);font-size:11px;margin-bottom:12px">${r.error||'Check internet connection'}</div>
+      <button onclick="loadUsers()" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer">Retry</button>
+    </div>`;
   }
 }
 
@@ -2107,6 +2134,9 @@ function removeLogo() {
 }
 
 function applyLogo(dataUrl) {
+  applyLogoSilent(dataUrl);
+}
+function applyLogoSilent(dataUrl) {
   const text1=document.getElementById('tb-logo-text');
   const img1=document.getElementById('tb-logo-img');
   if(dataUrl){
@@ -2114,9 +2144,6 @@ function applyLogo(dataUrl) {
   } else {
     text1.style.display='block';img1.style.display='none';
   }
-  // Also update login logo if present
-  const loginLogo=document.querySelector('.login-logo-z');
-  if(loginLogo) loginLogo.textContent='Z';
 }
 
 // ═══════════════════════════════════════════════════════
