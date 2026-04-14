@@ -233,7 +233,7 @@ body{font-family:var(--ff-body);background:var(--bg);color:var(--text);min-heigh
 .modal-title{font-family:var(--ff-head);font-size:18px;font-weight:800;color:var(--text);margin-bottom:18px}
 
 /* TOAST */
-#toast{position:fixed;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:10px 16px;font-size:13px;font-weight:600;color:var(--text);z-index:999;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px}
+#toast{display:none;position:fixed;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r12);padding:10px 16px;font-size:13px;font-weight:600;color:var(--text);z-index:999;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* PAYMENT MODAL specific */
@@ -342,10 +342,11 @@ body{font-family:var(--ff-body);background:var(--bg);color:var(--text);min-heigh
   </div>
 </div>
 
-<!-- APP -->
-<div id="app">
   <!-- TOAST -->
 <div id="toast">✓ <span id="toast-msg">Saved</span></div>
+
+<!-- APP -->
+<div id="app">
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="tb-left">
