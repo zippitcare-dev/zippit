@@ -954,22 +954,27 @@ const colors = ['#ff3f6c','#4d9fff','#00d68f','#ffb340','#9b6dff','#ff7043','#26
 const clientColor = id => colors[Math.abs(simpleHash(id||'x')) % colors.length];
 function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
 
-async function api(action, body={}) {
-  // Google Apps Script requires GET requests - POST triggers a CORS redirect
-  try {
-    const params = new URLSearchParams();
-    params.set('action', action);
-    // Serialize complex body as a single 'data' param
+// JSONP-based API — bypasses GAS CORS completely
+function api(action, body={}) {
+  return new Promise((resolve) => {
+    const cbName = '_zpcb_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+    const params = new URLSearchParams({ action, callback: cbName });
     if(Object.keys(body).length > 0) params.set('data', JSON.stringify(body));
-    const url = API + '?' + params.toString();
-    const res = await fetch(url, { method:'GET', redirect:'follow' });
-    const text = await res.text();
-    // Strip any JSONP wrapper GAS might add
-    const json = text.trim().replace(/^[^{\[]*/, '').replace(/[^}\]]*$/, '');
-    return JSON.parse(json || '{"ok":false,"error":"Empty response"}');
-  } catch(e) {
-    return {ok:false, error:'Network error: ' + e.message};
-  }
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      cleanup();
+      resolve({ok:false, error:'Timed out. Check internet.'});
+    }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = (result) => { cleanup(); resolve(result); };
+    script.onerror = () => { cleanup(); resolve({ok:false, error:'Failed to reach server.'}); };
+    script.src = API + '?' + params.toString();
+    document.head.appendChild(script);
+  });
 }
 
 function toast(msg, isErr=false) {
